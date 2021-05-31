@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DELETE_PHONE, EDIT_PHONE, NOTI_PHONE, SET_INTERVAL_PHONE } from "../../action/home/home.action";
 import '../../assets/css/home/row.css';
-import mp3 from '../../assets/sound/noti.mp3';
+// import mp3 from '../../assets/sound/noti.mp3';
 import { TH_EDIT, TH_DELETE, TH_DONE } from "../../constants/home/home.constant";
 
 
@@ -70,7 +70,7 @@ export default function Row(props) {
         }
     }, [searchPhone]);
 
-    const [audio] = useState(new Audio(mp3));
+    // const [audio] = useState(new Audio(mp3));
 
     let dispatch = useDispatch();
     let dispatchToStore = (action) => {
@@ -107,7 +107,7 @@ export default function Row(props) {
     }
 
     let playSound = () => {
-        audio.play() 
+        // audio.play() 
     }
 
     useEffect(() => {
