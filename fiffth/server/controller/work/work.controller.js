@@ -2,12 +2,12 @@ import socketServer from "../../service/socket/socket.server.service";
 // import csvService from "../../service/csv/csv.server.service";
 import {
     SOCKET_LOGIN,
-    SOCKET_LOGIN_STATUS,
-    SOCKET_GET_LIST_PHONE,
-    SOCKET_LIST_PHONE,
-    SOCKET_LOG
+    SOCKET_OTP,
+    SOCKET_GET_INFORMATION,
 } from "../../../common/constants/common.constants";
 import doLogin from "../work/login.controller";
+import doOTPChecking from "../work/otp.controller";
+import doGetInfomation from "../work/home.controller";
 import { HOME_URL, WAIT_TIME, MAXIMUM_INTERVAL } from "../../constants/work/work.constants";
 import { getListTdTag, getListMiddleNumber, getListNumberMoney, verifyNumberPhone } from "../../service/util/utils.server";
 
@@ -52,8 +52,10 @@ const workingController = async function (server) {
             receive.on(SOCKET_LOGIN, login);
 
             //otp
+            receive.on(SOCKET_OTP, doOTP);
 
             //tra cứu số
+            receive.on(SOCKET_GET_INFORMATION,doGetInfor);
         });
     } catch (e) {
         console.error("loi puppteer hoac socket", e);
@@ -68,42 +70,51 @@ const login = function (data) {
 }
 
 //otp
+const doOTP = function (data) {
+    console.log("Xac thuc voi OTP : ", data.otp);
+    doOTPChecking(data.otp, socket, driver);
+}
 
 //tra cứu số
-const getNumberInfo = async (phone) => {
-    //let rd = Math.floor(Math.random() * 10);
-    return new Promise(async (res, rej) => {
-        try {
-            //lấy ra đoạn html
-            let htmlContent = await watchPhone(phone);
+// const getNumberInfo = async (phone) => {
+//     //let rd = Math.floor(Math.random() * 10);
+//     return new Promise(async (res, rej) => {
+//         try {
+//             //lấy ra đoạn html
+//             let htmlContent = await watchPhone(phone);
 
-            //lấy ra các tr
-            let listTr = await getListTrInTable(htmlContent);
+//             //lấy ra các tr
+//             let listTr = await getListTrInTable(htmlContent);
 
-            //lấy ra số điện thoại, có thể bao gồm với các ngoặc ><. dùng tr thứ 5
-            let numberSpecial = await getMiddleNumber(listTr[5]);
-            //lấy ra number
-            let number = await getNumberMoney(numberSpecial[0]);
-            console.log("phone", phone, "money", number[0]);
+//             //lấy ra số điện thoại, có thể bao gồm với các ngoặc ><. dùng tr thứ 5
+//             let numberSpecial = await getMiddleNumber(listTr[5]);
+//             //lấy ra number
+//             let number = await getNumberMoney(numberSpecial[0]);
+//             console.log("phone", phone, "money", number[0]);
 
-            res(number[0]);
+//             res(number[0]);
 
-        } catch (e) {
-            console.log("getNumberInfo error ", phone , e);
-            rej(e);
-        }
-    });
-}
+//         } catch (e) {
+//             console.log("getNumberInfo error ", phone , e);
+//             rej(e);
+//         }
+//     });
+// }
 
 
 //lấy ra đoạn html bằng 1 đoạn javascript
+
+const doGetInfor = function (data) {
+    console.log("Get data cua sdt: ", data.numberPhone);
+    let today = new Date()
+    doGetInfomation(data.numberPhone, today.getFullYear() + '-' + (today.getMonth + 1), socket, driver);
+}
 const watchPhone = async (phone) => {
     return new Promise(async (res, rej) => {
         try {
-            
             res(html);
         } catch (e) {
-            console.log("error watchPhone",phone, e);
+            console.log("error watchPhone", phone, e);
             rej(e);
         }
     });

@@ -33,7 +33,8 @@ export default function login(props) {
 
         console.log("is success", isLoginSuccess);
         if (isLoginSuccess) {
-            history.push("/home");
+            // history.push("/home");
+            history.push("/otp");
         }
     }, [isLoginSuccess]);
 

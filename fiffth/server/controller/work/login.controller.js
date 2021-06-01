@@ -1,4 +1,4 @@
-import { LOGIN_URL, HOME_URL } from "../../constants/work/work.constants";
+import { LOGIN_URL, OTP_URL } from "../../constants/work/work.constants";
 import { SOCKET_SOMETHING_ERROR, SOCKET_LOGIN_INCORRECT, SOCKET_LOGIN_STATUS } from "../../../common/constants/common.constants";
 
 const DEFAULT_DELAY = 2000;
@@ -20,18 +20,21 @@ async function doLogin(username, password, socket, driver) {
         await driver.goto(LOGIN_URL);
 
         // wait to complete
-        await driver.waitForFunction('document.readyState === "complete"');
+        // await driver.waitForFunction('document.readyState === "complete"'); // need open comment
 
         // select to username input & send username
-        let selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_UserName";
+        // let selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_UserName"; // need open comment
+        let selector = "#username";
         await driver.$eval(selector, (el, value) => el.value = value, username);
 
         // select to password input & send password
-        selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_Password";
+        // selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_Password";// need open comment
+        selector = "#password";
         await driver.$eval(selector, (el, value) => el.value = value, password);
 
         // select to button login & click button
-        selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_LoginButton";
+        // selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_LoginButton";// need open comment
+        selector = "#fm1 > section > button";
         await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
 
         await timer(2000);
@@ -47,7 +50,7 @@ async function doLogin(username, password, socket, driver) {
         }
 
         //đi tới trang thông tin số
-        await driver.goto(HOME_URL);
+        await driver.goto(OTP_URL);
 
         // wait to complete
         await driver.waitForFunction('document.readyState === "complete"');
