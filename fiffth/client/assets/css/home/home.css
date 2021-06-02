@@ -68,22 +68,21 @@ td{
 }
 
 .input-add-div{
-    width: 100%;
+    width: 50%!important;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin: 10px 0px 0px 0px;
 }
 
 .input-add{
-    width: 35%!important;
+    width: 75%!important;
     height: 45px!important;
     margin-right: 10px;
     margin-bottom: 10px;
 }
 
 .input-add-button{
-    width: 15%!important;
+    width: 25%!important;
     height: 45px!important;
 }
 

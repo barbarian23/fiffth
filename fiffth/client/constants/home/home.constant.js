@@ -1,3 +1,5 @@
+import e from "cors";
+
 export const homeConstant = {
     login: "Đăng nhập",
 }
@@ -16,6 +18,9 @@ export const TH_DONE = "Hoàn tất";
 export const TR_TYPE_NUMBER = "Nhập số điện thoại";
 export const TR_TYPE_MONEY = "Nhập số tiền";
 export const TR_TYPE_ADD = "Thêm";
+
+export const TR_TYPE_TIME = "Nhập khoảng thời gian tra cứu (s)";
+export const TR_TYPE_SETUP = "Thiết lập";
 
 export const sampleData = [
     {
