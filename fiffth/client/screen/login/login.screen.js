@@ -29,11 +29,9 @@ export default function login(props) {
     let { isSomethingError, isLoginSuccess, loginError, logginin } = useSelector(state => state.login);
 
     useEffect(() => {
-        // dieu huong sang home
-
+        // dieu huong sang otp
         console.log("is success", isLoginSuccess);
         if (isLoginSuccess) {
-            // history.push("/home");
             history.push("/otp");
         }
     }, [isLoginSuccess]);

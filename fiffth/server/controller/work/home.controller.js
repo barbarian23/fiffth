@@ -1,6 +1,6 @@
 import { HOME_URL, OTP_URL } from "../../constants/work/work.constants";
 import { SOCKET_SOMETHING_ERROR, SOCKET_LOGIN_INCORRECT, SOCKET_LOGIN_STATUS } from "../../../common/constants/common.constants";
-
+import { getListTdInformation, getTdInformation } from "../../service/util/utils.server";
 const DEFAULT_DELAY = 2000;
 
 /**
@@ -27,20 +27,26 @@ async function doGetInfomation(numberPhone, month, socket, driver) {
         await driver.$eval(selector, (el, value) => el.value = value, month);
 
         // select to button search & click button
-        selector = "#fm1 > section > button"; // need to update
+        selector = "#Div_Param > div:nth-child(2) > div:nth-child(3) > button"; // need to update
         await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
 
         await timer(2000);
 
-        //lấy ra một DOM - tương đương hàm document.querySelector()
-        //lấy ra table result search
-        await driver.$$eval("#DivPhanQuyen > table", spanData => spanData.map((span) => {
-            console.log("dataFromLoginSummarySpan is: ", span.innerHTML);
-            //  if(table != null){
-            //      socket.send(SOCKET_ADD_INFORMATION, {number: number, month: month, kvcode: kvcode, money: money});
-            //     return {number: number, month: month, kvcode: kvcode, money: money}
-            // }else
-            //     return null;
+        //lấy ra table result search - chỉ lấy phần row data
+        await driver.$$eval("#tbody_td_207", spanData => spanData.map((span) => {
+            console.log("dataFromTable is: ", span.innerHTML);
+            if (span.innerHTML.length == "") { //  table k co du lieu >> k them vao excel
+                socket.send(SOCKET_NOT_ADD_INFORMATION, { status: "SDT khong ton tai du lieu" });
+            } else {
+                let listTdTag = getListTdInformation(span.innerHTML);
+                // crawl BTS_NAME
+                let btsName = getTdInformation(listTdTag[1]);
+                // crawl MATINH - important
+                let maTinh = getTdInformation(listTdTag[2]);
+                // crawl TOTAL_TKC - optional
+                let totalTKC = getTdInformation(listTdTag[3]);
+                socket.send(SOCKET_ADD_INFORMATION, { numberPhone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
+            }
         }));
     } catch (e) {
     }

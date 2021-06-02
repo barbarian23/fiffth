@@ -12,17 +12,15 @@ function timer(ms) {
     return new Promise(res => setTimeout(res, ms));
 }
 
-// do login
+// do otp checking
 async function doOTPChecking(otp, socket, driver) {
     try {
-        console.log("username ", username, "password", password);
+        console.log("otp ", otp);
         // go to login url
         await driver.goto(OTP_URL);
 
-        // wait to complete
-        // await driver.waitForFunction('document.readyState === "complete"'); // need open comment
-
-
+        //wait to complete
+        await driver.waitForFunction('document.readyState === "complete"');
 
         //lấy ra một DOM - tương đương hàm document.querySelector()
         let dataFromLoginSummarySpan = await driver.$$eval("#content > div.otp-form", spanData => spanData.map((span) => {
@@ -30,15 +28,10 @@ async function doOTPChecking(otp, socket, driver) {
         }));
 
         if (dataFromLoginSummarySpan.length > 0) {
-            // socket.send(SOCKET_OTP_INCORRECT, { data: -1 });
-            // return;
-            // select to otp input & send otp
-            // let selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_UserName"; // need open comment
             let selector = "#passOTP";
             await driver.$eval(selector, (el, value) => el.value = value, otp);
 
             // select to button login & click button
-            // selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_LoginButton";// need open comment
             selector = "#loginForm > div.row > button";
             await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
 

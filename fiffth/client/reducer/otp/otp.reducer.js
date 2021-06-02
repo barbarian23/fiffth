@@ -1,11 +1,11 @@
 import { OPEN_HOME_SCREEN, OTP_CHECKING, OTP_ERROR, } from "../../action/otp/otp.action";
 
 const initialState = {
-    isOtpSucess: false,
+    isOtpSuccess: false,
     isSomethingError: false,
     otpError: "",
     otp_code: "",
-    otpCheking: false,
+    otpCheking: "",
 };
 
 export default function otpReducer(state = initialState, action) {
@@ -13,18 +13,19 @@ export default function otpReducer(state = initialState, action) {
         case OPEN_HOME_SCREEN:
             return {
                 ...state,
-                isOtpSucess: true
+                isOtpSuccess: true
             }
-        case OTP_ERROR:
-            return {
-                ...state,
-                otpError: action.value,
-                isSomethingError: true //hien dong chu otp khong hop le
-            }
+        // case OTP_ERROR:
+        //     return {
+        //         ...state,
+        //         otpError: action.value,
+        //         isSomethingError: true //hien dong chu otp khong hop le
+        //     }
         case OTP_CHECKING:
+            console.log("otp checking from client", action.data);
             return {
                 ...state,
-                otpCheking: action.value,
+                otpCheking: action.data.otpCheking,
             }
         default:
             return {

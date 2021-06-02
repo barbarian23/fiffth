@@ -26,7 +26,7 @@ const preparePuppteer = function () {
     return new Promise((res, rej) => {
         puppeteer.launch({
             args: ["--no-sandbox", "--proxy-server='direct://'", '--proxy-bypass-list=*'],
-            headless: true,
+            headless: false,
             ignoreHTTPSErrors: true,
             executablePath: exPath == "" ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" : exPath
         })
@@ -104,7 +104,7 @@ const doOTP = function (data) {
 
 //lấy ra đoạn html bằng 1 đoạn javascript
 
-const doGetInfor = function (data) {
+const doGetInfor = function (data) { // crawl data in table
     console.log("Get data cua sdt: ", data.numberPhone);
     let today = new Date()
     doGetInfomation(data.numberPhone, today.getFullYear() + '-' + (today.getMonth + 1), socket, driver);
