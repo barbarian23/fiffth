@@ -3,13 +3,12 @@ import socketServer from "../../service/socket/socket.server.service";
 import {
     SOCKET_LOGIN,
     SOCKET_OTP,
-    SOCKET_GET_INFORMATION,
+    SOCKET_WORKING_START_CRAWL_DATA,
 } from "../../../common/constants/common.constants";
 import doLogin from "../work/login.controller";
 import doOTPChecking from "../work/otp.controller";
 import doGetInfomation from "../work/home.controller";
-import { HOME_URL, WAIT_TIME, MAXIMUM_INTERVAL } from "../../constants/work/work.constants";
-import { getListTdTag, getListMiddleNumber, getListNumberMoney, verifyNumberPhone } from "../../service/util/utils.server";
+import { forEach } from "lodash";
 
 const puppeteer = require('puppeteer');
 //C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
@@ -20,6 +19,8 @@ var driver;
 //puppeteer
 //socket
 var socket = null;
+var excel = require('excel4node');
+var wb, ws;
 
 
 const preparePuppteer = function () {
@@ -55,7 +56,7 @@ const workingController = async function (server) {
             receive.on(SOCKET_OTP, doOTP);
 
             //tra cứu số
-            receive.on(SOCKET_GET_INFORMATION,doGetInfor);
+            receive.on(SOCKET_WORKING_START_CRAWL_DATA, doGetInfor);
         });
     } catch (e) {
         console.error("loi puppteer hoac socket", e);
@@ -75,78 +76,67 @@ const doOTP = function (data) {
     doOTPChecking(data.otp, socket, driver);
 }
 
-//tra cứu số
-// const getNumberInfo = async (phone) => {
-//     //let rd = Math.floor(Math.random() * 10);
-//     return new Promise(async (res, rej) => {
-//         try {
-//             //lấy ra đoạn html
-//             let htmlContent = await watchPhone(phone);
-
-//             //lấy ra các tr
-//             let listTr = await getListTrInTable(htmlContent);
-
-//             //lấy ra số điện thoại, có thể bao gồm với các ngoặc ><. dùng tr thứ 5
-//             let numberSpecial = await getMiddleNumber(listTr[5]);
-//             //lấy ra number
-//             let number = await getNumberMoney(numberSpecial[0]);
-//             console.log("phone", phone, "money", number[0]);
-
-//             res(number[0]);
-
-//         } catch (e) {
-//             console.log("getNumberInfo error ", phone , e);
-//             rej(e);
-//         }
-//     });
-// }
-
-
-//lấy ra đoạn html bằng 1 đoạn javascript
-
+// crawl data
 const doGetInfor = function (data) { // crawl data in table
-    console.log("Get data cua sdt: ", data.numberPhone);
-    let today = new Date()
-    doGetInfomation(data.numberPhone, today.getFullYear() + '-' + (today.getMonth + 1), socket, driver);
-}
-const watchPhone = async (phone) => {
-    return new Promise(async (res, rej) => {
-        try {
-            res(html);
-        } catch (e) {
-            console.log("error watchPhone", phone, e);
-            rej(e);
-        }
-    });
+    console.log("data from client: ", data);
+    createFileExcel(data.nameFile);
+
+    data.listPhone.forEach((item, index) => {
+        setTimeout(() => {
+            console.log("Tra cuu so thu ", index, " phone ", item.phone);
+            let today = new Date();
+            doGetInfomation(item.phone, today.getFullYear() + '-' + (today.getMonth + 1), ws, socket, driver);
+        }, 2000);
+    })
 }
 
+//// foreach
+////prepare file xlsx to save data
+//ghi ra từng ô
+async function writeHeader(wb, ws) {
+    try {
+        let style = wb.createStyle({
+            alignment: {
+                vertical: ['center'],
+                horizontal: ['center'],
+                wrapText: true,
+            },
+            font: {
+                bold: true,
+                name: 'Arial',
+                color: '#4e3861',
+                size: 12,
+            },
+        });
 
-//lấy ra các thẻ table từ đoạn html
-const getListTrInTable = async (htmlContent) => {
-    return new Promise(async (res, rej) => {
-        let listTrTag = await getListTdTag(htmlContent);
-        //await socket.send(SOCKET_LOG, { message: "list tr", data: listTrTag });
-        res(listTrTag);
-    });
+        ws.cell(1, 1).string("STT").style(style);
+        ws.cell(1, 2).string("SĐT").style(style);
+        ws.cell(1, 3).string("BTS_NAME").style(style);
+        ws.cell(1, 4).string("MA_TINH").style(style);
+        ws.cell(1, 5).string("TOTAL_TKC").style(style);
+    } catch (e) {
+        console.log("e", e);
+    }
 }
 
-//lấy ra number có thể kèm theo các ký tự đặc biệt như ><
-const getMiddleNumber = (listTr) => {
-    return new Promise(async (res, rej) => {
-        let numberWithSpecial = await getListMiddleNumber(listTr);
-        //await socket.send(SOCKET_LOG, { message: "number uiwth spcial tr", data: numberWithSpecial });
-        res(numberWithSpecial);
-    });
-}
+const createFileExcel = function (data) {
+    console.log(" file name from client", data);
 
-//lấy ra number từ 1 đoạn string có chứa số kèm theo 1 số ký tư đặc biệt như ><
-const getNumberMoney = (numberSpecial) => {
-    return new Promise(async (res, rej) => {
-        let number = await getListNumberMoney(numberSpecial);
-        //await socket.send(SOCKET_LOG, { message: "number", data: number });
-        res(number);
-    });
+    wb = new excel.Workbook();
+    ws = wb.addWorksheet('Tra cứu');
+
+    ws.column(1).setWidth(5);//STT
+    ws.column(2).setWidth(30);//Số thuê bao,
+    ws.column(3).setWidth(30);//BTS_NAME,
+    ws.column(4).setWidth(30);//MA_TINH,
+    ws.column(5).setWidth(30);//TOTAL_TKC
+
+    writeHeader(wb, ws);
+    let today = new Date();
+    let fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
+    wb.write(fileName);
 }
+////////////////////////
 
 
 let random = () => {

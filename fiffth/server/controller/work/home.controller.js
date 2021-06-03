@@ -1,5 +1,5 @@
-import { HOME_URL, OTP_URL } from "../../constants/work/work.constants";
-import { SOCKET_SOMETHING_ERROR, SOCKET_LOGIN_INCORRECT, SOCKET_LOGIN_STATUS } from "../../../common/constants/common.constants";
+import { HOME_URL } from "../../constants/work/work.constants";
+import { SOCKET_WORKING_CRAWLED_ITEM_DATA } from "../../../common/constants/common.constants";
 import { getListTdInformation, getTdInformation } from "../../service/util/utils.server";
 const DEFAULT_DELAY = 2000;
 
@@ -11,9 +11,17 @@ function timer(ms) {
     ms = ms == null ? DEFAULT_DELAY : ms;
     return new Promise(res => setTimeout(res, ms));
 }
-
+//ghi ra từng ô trong excel
+async function writeToXcell(worksheet, x, y, title) {
+    try {
+        worksheet.cell(x, y).string(tTitle).style(style);
+    } catch (e) {
+        console.log("e", e);
+    }
+    // }
+}
 // do login
-async function doGetInfomation(numberPhone, month, socket, driver) {
+async function doGetInfomation(numberPhone, index, month, worksheet, socket, driver) {
     try {
         console.log("numberPhone ", numberPhone, "month", month);
         // go to login url
@@ -36,7 +44,8 @@ async function doGetInfomation(numberPhone, month, socket, driver) {
         await driver.$$eval("#tbody_td_207", spanData => spanData.map((span) => {
             console.log("dataFromTable is: ", span.innerHTML);
             if (span.innerHTML.length == "") { //  table k co du lieu >> k them vao excel
-                socket.send(SOCKET_NOT_ADD_INFORMATION, { status: "SDT khong ton tai du lieu" });
+                // bo qua,k them du lieu vao excel
+                socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
             } else {
                 let listTdTag = getListTdInformation(span.innerHTML);
                 // crawl BTS_NAME
@@ -45,7 +54,16 @@ async function doGetInfomation(numberPhone, month, socket, driver) {
                 let maTinh = getTdInformation(listTdTag[2]);
                 // crawl TOTAL_TKC - optional
                 let totalTKC = getTdInformation(listTdTag[3]);
-                socket.send(SOCKET_ADD_INFORMATION, { numberPhone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
+                // thêm data vao excel
+                writeToXcell(worksheet, index + 1, 1, index); // STT
+                writeToXcell(worksheet, index + 1, 2, numberPhone); // SDT
+                writeToXcell(worksheet, index + 1, 3, btsName); // BTS_NAME
+                writeToXcell(worksheet, index + 1, 4, maTinh); // MA_TINH
+                writeToXcell(worksheet, index + 1, 5, totalTKC); // TOTAL_TKC
+                // gửi dữ liệu về client
+                // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
+                socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+                // clearInterval(itemPhone.interval);
             }
         }));
     } catch (e) {

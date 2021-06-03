@@ -9,7 +9,7 @@ import * as XLSX from 'xlsx';
  * @param {*} callback là hàm sẽ nhận lại kết quả trong file excel tải lên
  */
 export function readFileExcel(file, callback) {
-    console.log(file);
+    // console.log(file);
     readXlsxFile(file).then((rows) => {
         // console.log(rows);
         callback(rows);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import '../../assets/css/home/home.css';
 import { TR_TYPE_TIME, TR_TYPE_SETUP } from "../../constants/home/home.constant";
-import { GET_LENGHT_LIST, GET_NUMBER_INFORMATION } from "../../action/home/home.action";
+import { GET_LENGHT_LIST, GET_NUMBER_INFORMATION, SEND_NUMBER_TOSERVER, START_CRAWL_DATA } from "../../action/home/home.action";
 import { readFileExcel, createFileExcel } from "../../service/excel/excel.client.service";
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -9,6 +9,7 @@ export default function Home() {
     const [mTime, setMTime] = useState(0);
     const [isTracking, setIsTracking] = useState(false);
     const dispatch = useDispatch();
+    let listPhone = useSelector(state => state.home.listPhone);
     let phoneNumberChecking = useSelector(state => state.home.phoneNumberChecking);
     let sumIndex = useSelector(state => state.home.sumIndex);
     // let listPhone = useSelector(state => state.home.listPhone);
@@ -24,15 +25,26 @@ export default function Home() {
     // }, []);
 
     let readFile = (e) => {
+        // console.log("name file is ", e.target.files[0].name);
+        let nameFile = e.target.files[0].name;
         readFileExcel(e.target.files[0], (data) => {
             setIsTracking(true);
             //data là mảng chứa danh sách thuê bao và số tiền
-            dispatch({type: GET_LENGHT_LIST, data: {sumIndex: data.length}});
+            dispatch({ type: GET_LENGHT_LIST, data: { sumIndex: data.length } });
             data.forEach((item, index) => {
                 //Bỏ qua dòng đầu vì là tiêu đề
                 if (index > 0) {
-                    console.log("data in file excel", item);
-                    dispatch({ type: GET_NUMBER_INFORMATION, data: { phone: item[0], index: item[1] } });
+                    // console.log("data in file excel", item);
+                    // dispatch({ type: SEND_NUMBER_TOSERVER, data: { phone: item[0], index: item[1] } });
+                    let itemPhone = {
+                        index: item[1],
+                        phone: item[0]
+                    }
+                    listPhone.push(itemPhone);
+                }
+                if (index == (data.length - 1)) {
+                    console.log("data - endoflist", item[0], " ", item[1], " listPhone", listPhone);
+                    dispatch({ type: START_CRAWL_DATA, data: { listPhone: listPhone, nameFile: nameFile.substring(0, nameFile.length - 5) } });
                 }
             });
         });
@@ -63,7 +75,7 @@ export default function Home() {
                 !isTracking ?
                     <div className="crawl-login">
                         <div className="input-add-div">
-                            <input className="input-add" type="text" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
+                            <input className="input-add" type="number" min="1" max="60" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
                             <input className="input-add-button" type="button" value={TR_TYPE_SETUP} onClick={setUpTime} />
                         </div>
                         <div id="crawl_login_file_input_up">
