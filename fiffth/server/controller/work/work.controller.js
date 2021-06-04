@@ -66,30 +66,43 @@ const workingController = async function (server) {
 
 //login
 const login = function (data) {
-    console.log("login voi username va password", data.username, data.password);
-    doLogin(data.username, data.password, socket, driver);
+    try {
+        console.log("login voi username va password", data.username, data.password);
+        doLogin(data.username, data.password, socket, driver);
+    } catch (e) {
+        console.log("login error ", e);
+    }
 }
 
 //otp
 const doOTP = function (data) {
-    console.log("Xac thuc voi OTP : ", data.otp);
-    doOTPChecking(data.otp, socket, driver);
+    try {
+        console.log("Xac thuc voi OTP : ", data.otp);
+        doOTPChecking(data.otp, socket, driver);
+    } catch (e) {
+        console.log("doOTP error ", e);
+    }
 }
 
 // crawl data
-const doGetInfor = function (data) { // crawl data in table
-    console.log("data from client: ", data);
-    createFileExcel(data.nameFile);
-
-    data.listPhone.forEach((item, index) => {
-        setTimeout(() => {
+const doGetInfor = async function (data) { // crawl data in table
+    try {
+        console.log("data from client: ", data);
+        createFileExcel(data.nameFile);
+        for (let index = 0; index < data.listPhone.length; index++) {
             console.log("Tra cuu so thu ", index, " phone ", item.phone);
             let today = new Date();
             doGetInfomation(item.phone, today.getFullYear() + '-' + (today.getMonth + 1), ws, socket, driver);
-        }, 2000);
-    })
+            await timer(2000);
+        }
+    } catch (e) {
+        console.log("doGetInfor error ", e);
+    }
 }
-
+// timer
+function timer(ms) {
+    return new Promise(res => setTimeout(res, ms));
+}
 //// foreach
 ////prepare file xlsx to save data
 //ghi ra từng ô
@@ -120,21 +133,26 @@ async function writeHeader(wb, ws) {
 }
 
 const createFileExcel = function (data) {
-    console.log(" file name from client", data);
+    try {
+        console.log(" file name from client", data);
 
-    wb = new excel.Workbook();
-    ws = wb.addWorksheet('Tra cứu');
+        wb = new excel.Workbook();
+        ws = wb.addWorksheet('Tra cứu');
 
-    ws.column(1).setWidth(5);//STT
-    ws.column(2).setWidth(30);//Số thuê bao,
-    ws.column(3).setWidth(30);//BTS_NAME,
-    ws.column(4).setWidth(30);//MA_TINH,
-    ws.column(5).setWidth(30);//TOTAL_TKC
+        ws.column(1).setWidth(5);//STT
+        ws.column(2).setWidth(30);//Số thuê bao,
+        ws.column(3).setWidth(30);//BTS_NAME,
+        ws.column(4).setWidth(30);//MA_TINH,
+        ws.column(5).setWidth(30);//TOTAL_TKC
 
-    writeHeader(wb, ws);
-    let today = new Date();
-    let fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
-    wb.write(fileName);
+        writeHeader(wb, ws);
+        let today = new Date();
+        let fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
+        wb.write(fileName);
+
+    } catch (e) {
+        console.log("createFileExcel error ", e);
+    }
 }
 ////////////////////////
 

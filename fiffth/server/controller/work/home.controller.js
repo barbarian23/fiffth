@@ -41,32 +41,35 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
         await timer(2000);
 
         //lấy ra table result search - chỉ lấy phần row data
-        await driver.$$eval("#tbody_td_207", spanData => spanData.map((span) => {
+        let resultHtml = await driver.$$eval("#tbody_td_207", spanData => spanData.map((span) => {
             console.log("dataFromTable is: ", span.innerHTML);
-            if (span.innerHTML.length == "") { //  table k co du lieu >> k them vao excel
-                // bo qua,k them du lieu vao excel
-                socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
-            } else {
-                let listTdTag = getListTdInformation(span.innerHTML);
-                // crawl BTS_NAME
-                let btsName = getTdInformation(listTdTag[1]);
-                // crawl MATINH - important
-                let maTinh = getTdInformation(listTdTag[2]);
-                // crawl TOTAL_TKC - optional
-                let totalTKC = getTdInformation(listTdTag[3]);
-                // thêm data vao excel
-                writeToXcell(worksheet, index + 1, 1, index); // STT
-                writeToXcell(worksheet, index + 1, 2, numberPhone); // SDT
-                writeToXcell(worksheet, index + 1, 3, btsName); // BTS_NAME
-                writeToXcell(worksheet, index + 1, 4, maTinh); // MA_TINH
-                writeToXcell(worksheet, index + 1, 5, totalTKC); // TOTAL_TKC
-                // gửi dữ liệu về client
-                // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
-                socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
-                // clearInterval(itemPhone.interval);
-            }
+            return span.innerHTML;
         }));
+
+        if (resultHtml.length == "") { //  table k co du lieu >> k them vao excel
+            // bo qua,k them du lieu vao excel
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+        } else {
+            let listTdTag = getListTdInformation(resultHtml);
+            // crawl BTS_NAME
+            let btsName = getTdInformation(listTdTag[1]);
+            // crawl MATINH - important
+            let maTinh = getTdInformation(listTdTag[2]);
+            // crawl TOTAL_TKC - optional
+            let totalTKC = getTdInformation(listTdTag[3]);
+            // thêm data vao excel
+            writeToXcell(worksheet, index + 1, 1, index); // STT
+            writeToXcell(worksheet, index + 1, 2, numberPhone); // SDT
+            writeToXcell(worksheet, index + 1, 3, btsName); // BTS_NAME
+            writeToXcell(worksheet, index + 1, 4, maTinh); // MA_TINH
+            writeToXcell(worksheet, index + 1, 5, totalTKC); // TOTAL_TKC
+            // gửi dữ liệu về client
+            // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+            // clearInterval(itemPhone.interval);
+        }
     } catch (e) {
+        console.log("doGetInfomation error ", e);
     }
 }
 export default doGetInfomation;

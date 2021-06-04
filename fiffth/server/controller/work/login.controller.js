@@ -51,7 +51,6 @@ async function doLogin(username, password, socket, driver) {
 
         //đi tới trang thông tin số
         // await driver.goto(OTP_URL);
-
         // wait to complete
         await driver.waitForFunction('document.querySelector("#passOTP") != null');
 

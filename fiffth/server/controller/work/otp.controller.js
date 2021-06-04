@@ -17,10 +17,10 @@ async function doOTPChecking(otp, socket, driver) {
     try {
         console.log("otp ", otp);
         // go to login url
-        await driver.goto(OTP_URL);
+        // await driver.goto(OTP_URL);
 
         //wait to complete
-        await driver.waitForFunction('document.readyState === "complete"');
+        // await driver.waitForFunction('document.readyState === "complete"');
 
         //lấy ra một DOM - tương đương hàm document.querySelector()
         let dataFromLoginSummarySpan = await driver.$$eval("#content > div.otp-form", spanData => spanData.map((span) => {
@@ -38,10 +38,10 @@ async function doOTPChecking(otp, socket, driver) {
             await timer(2000);
 
             //đi tới trang thông tin số
-            await driver.goto(HOME_URL);
+            // await driver.goto(HOME_URL);
 
             // wait to complete
-            await driver.waitForFunction('document.readyState === "complete"');
+            await driver.waitForFunction('document.querySelector("#txtSearch") != null');
 
             socket.send(SOCKET_OTP_STATUS, { data: 1 });
         }

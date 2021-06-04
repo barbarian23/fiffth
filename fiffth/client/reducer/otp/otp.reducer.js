@@ -25,7 +25,7 @@ export default function otpReducer(state = initialState, action) {
             console.log("otp checking from client", action.data);
             return {
                 ...state,
-                otpCheking: action.data.otpCheking,
+                otpCheking: action.data.otpcheking,
             }
         default:
             return {

@@ -11,8 +11,8 @@ const otpSocket = function (data) {
     console.log("otpSocket", data);
     return eventChannel(emitter => {
         //gửi
-        console.log("otp send to server, ", data.data.otp);
-        socket.send(SOCKET_OTP, { otp: data.data.otp });
+        console.log("otp send to server, ", data.data.otpchecking);
+        socket.send(SOCKET_OTP, { otp: data.data.otpchecking });
 
         // nhan
         socket.receive(SOCKET_OTP_INCORRECT, data => {
@@ -38,7 +38,7 @@ const otpSocket = function (data) {
 }
 
 const otpChecking = function* (data) {
-    yield put({ type: OTP_CHECKING, value: true });
+    // yield put({ type: OTP_CHECKING, value: true });
 
     // goi ham lang nghe socket
     let result = yield call(otpSocket, data);
