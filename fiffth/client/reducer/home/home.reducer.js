@@ -13,6 +13,7 @@ const initialState = {
         phone: "",
     },
     sumIndex: "",
+    isCrawlDone: true
 };
 
 export default function homeReducer(state = initialState, action) {
@@ -34,10 +35,10 @@ export default function homeReducer(state = initialState, action) {
                 ...state,
                 listPhone: tempList,
             }
-            // nhan reponse tu server
-            // nhan ve: index, phone da crawl xong tu server
-            // can xem lai
-        case GET_NUMBER_INFORMATION: 
+        // nhan reponse tu server
+        // nhan ve: index, phone da crawl xong tu server
+        // can xem lai
+        case GET_NUMBER_INFORMATION:
             console.log("phone ", action.data.index, " ", action.data.phone);
             let tempNumber = { ...state.phoneNumberChecking };
             tempNumber.index = action.data.index;
@@ -49,6 +50,7 @@ export default function homeReducer(state = initialState, action) {
         case GET_NUMBER_INFORMATION_SUCCESS:
             return {
                 ...state,
+                isCrawlDone: action.data
             }
         default:
             return {

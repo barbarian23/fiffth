@@ -17,7 +17,7 @@ export default function otp(props) {
     }
 
     let history = useHistory();
-    let {isOtpSuccess} = useSelector(state => state.otp);
+    let { isOtpSuccess, isVerifyingOTP, otpStatus, isTimeout } = useSelector(state => state.otp);
     useEffect(() => {
         // dieu huong sang home
         console.log("is otp success", isOtpSuccess);
@@ -25,6 +25,18 @@ export default function otp(props) {
             history.push("/home");
         }
     }, [isOtpSuccess]);
+
+    useEffect(() => {
+        // dieu huong về lại login
+        console.log("otp timeout");
+        if (isTimeout) {
+            setTimeout(() => {
+                history.push("/");
+            }, 1000);
+        }
+    }, [isTimeout]);
+
+
     return (
         <div>
             <div className="crawl-otp">
@@ -36,10 +48,32 @@ export default function otp(props) {
                         <input type="text" id="otp" placeholder={otpConstant.otpPlaceholder} onChange={updateOTP} />
                     </div>
                 </div>
-                <div className="crawl-otp-button-submit" id="crawl_otp_button_submit"
-                    onClick={() => dispatchToStore({ type: OTP_CHECKING, data: { otpchecking: otp } })}>
-                    <span>{otpConstant.otpButton}</span>
-                </div>
+                {
+                    isVerifyingOTP
+                        ?
+                        <div className="crawl-loading-parent" id="div_loginin_loading">
+                            <div className="crawl-login-loading">
+                                <div className="circle"></div>
+                                <div className="circle"></div>
+                                <div className="circle"></div>
+                                <div className="shadow"></div>
+                                <div className="shadow"></div>
+                                <div className="shadow"></div>
+                                <span>Đang xác thực OTP ...</span>
+                            </div>
+                        </div>
+                        :
+                        <div className="crawl-otp-button-submit" id="crawl_otp_button_submit"
+                            onClick={() => dispatchToStore({ type: OTP_CHECKING, data: { otpchecking: otp } })}>
+                            <span>{otpConstant.otpButton}</span>
+                        </div>
+                }
+                {
+                    otpStatus != "" ?
+                        <h3>{otpStatus}</h3>
+                        :
+                        null
+                }
             </div>
         </div>
     )

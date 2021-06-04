@@ -112,6 +112,14 @@ td{
     align-items: center;
 }
 
+.crawl-login input{
+    font-size:18px
+}
+
+#crawl_login_file_input_up{
+    font-size:25px
+}
+
 #crawl_login_file_input {
     padding: 15px 5px;
     margin-bottom: 5px;
@@ -380,6 +388,15 @@ td{
     left: 15%;
     filter: blur(1px);
     animation: shadow .5s alternate infinite ease;
+}
+
+.tracking-index-number-upper{
+    font-size: 40px;
+}
+
+.tracking-index-number-bellow{
+    font-size: 30px;
+    text-align: center;
 }
 
 @keyframes textshow {

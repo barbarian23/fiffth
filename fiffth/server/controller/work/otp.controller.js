@@ -1,5 +1,5 @@
 import { OTP_URL, HOME_URL } from "../../constants/work/work.constants";
-import { SOCKET_SOMETHING_ERROR, SOCKET_LOGIN_INCORRECT, SOCKET_LOGIN_STATUS } from "../../../common/constants/common.constants";
+import { SOCKET_SOMETHING_ERROR, SOCKET_OTP_STATUS, SOCKET_OTP_INCORRECT } from "../../../common/constants/common.constants";
 
 const DEFAULT_DELAY = 2000;
 
@@ -16,8 +16,16 @@ function timer(ms) {
 async function doOTPChecking(otp, socket, driver) {
     try {
         console.log("otp ", otp);
+
+        //khi mà dilaog sai otp hiện lên
+        driver.on("dialog",async (dialog) => {
+            console.log(dialog.message());
+            await dialog.dismiss();
+            socket.send(SOCKET_OTP_STATUS, { data: 4 });
+        });
+
         // go to login url
-        // await driver.goto(OTP_URL);
+         //await driver.goto(OTP_URL);
 
         //wait to complete
         // await driver.waitForFunction('document.readyState === "complete"');
@@ -32,6 +40,7 @@ async function doOTPChecking(otp, socket, driver) {
             await driver.$eval(selector, (el, value) => el.value = value, otp);
 
             // select to button login & click button
+            //check xem hiện tại otp đã bị timoue hay chưa
             selector = "#loginForm > div.row > button";
             await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
 
@@ -44,9 +53,11 @@ async function doOTPChecking(otp, socket, driver) {
             await driver.waitForFunction('document.querySelector("#txtSearch") != null');
 
             socket.send(SOCKET_OTP_STATUS, { data: 1 });
+        } else {
+            socket.send(SOCKET_OTP_STATUS, { data: 3 }); // timeout
         }
     } catch (e) {
-        console.log("Login Error", e);
+        console.log("otp Error", e);
         socket.send(SOCKET_OTP_INCORRECT, { data: -1 });
         socket.send(SOCKET_SOMETHING_ERROR, { data: 0 });
     }

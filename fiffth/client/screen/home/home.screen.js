@@ -12,6 +12,8 @@ export default function Home() {
     let listPhone = useSelector(state => state.home.listPhone);
     let phoneNumberChecking = useSelector(state => state.home.phoneNumberChecking);
     let sumIndex = useSelector(state => state.home.sumIndex);
+    let isCrawlDone = useSelector(state => state.home.isCrawlDone);
+
     // let listPhone = useSelector(state => state.home.listPhone);
 
     // thay doi % hoan thien crawl 
@@ -23,6 +25,10 @@ export default function Home() {
     //     // khoi tao interval - duy nhat 1 lan
     //     dispatch({ type: SET_INTERVAL_PHONE });
     // }, []);
+
+    useEffect(() => {
+        setIsTracking(!isCrawlDone);
+    }, [isCrawlDone]);
 
     let readFile = (e) => {
         // console.log("name file is ", e.target.files[0].name);
@@ -44,7 +50,7 @@ export default function Home() {
                 }
                 if (index == (data.length - 1)) {
                     console.log("data - endoflist", item[0], " ", item[1], " listPhone", listPhone);
-                    dispatch({ type: START_CRAWL_DATA, data: { listPhone: listPhone, nameFile: nameFile.substring(0, nameFile.length - 5) } });
+                    dispatch({ type: START_CRAWL_DATA, data: { listPhone: listPhone, nameFile: nameFile.substring(0, nameFile.length - 5), time: mTime } });
                 }
             });
         });
@@ -71,11 +77,16 @@ export default function Home() {
     }
     return (
         <div className="crawl-login" id="div_craw">
+            <div style={{
+                        position: "absolute",
+                        top: "20px",
+                        fontSize: "36px",
+                        fontWeight: "600"}}>CAS VNPT TRA CỨU THÔNG TIN</div>
             {
                 !isTracking ?
                     <div className="crawl-login">
                         <div className="input-add-div">
-                            <input className="input-add" type="number" min="1" max="60" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
+                            <input className="input-add" type="number" min="1" max="60" defaultValue="1" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
                             <input className="input-add-button" type="button" value={TR_TYPE_SETUP} onClick={setUpTime} />
                         </div>
                         <div id="crawl_login_file_input_up">
@@ -105,10 +116,10 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        <div className="tracking-index-number">
+                        <div className="tracking-index-number-upper">
                             <text>Đang tra cứu tới số thứ {phoneNumberChecking.index}</text>
                         </div>
-                        <div className="tracking-index-number">
+                        <div className="tracking-index-number-bellow">
                             <text>Hoàn thành {percentProcess(phoneNumberChecking.index, sumIndex)}%</text>
                         </div>
                     </div>

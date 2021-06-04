@@ -1,5 +1,5 @@
 import { HOME_URL } from "../../constants/work/work.constants";
-import { SOCKET_WORKING_CRAWLED_ITEM_DATA } from "../../../common/constants/common.constants";
+import { SOCKET_WORKING_CRAWLED_ITEM_DATA, SOCKET_CRAWLED_DONE } from "../../../common/constants/common.constants";
 import { getListTdInformation, getTdInformation } from "../../service/util/utils.server";
 const DEFAULT_DELAY = 2000;
 
@@ -12,16 +12,16 @@ function timer(ms) {
     return new Promise(res => setTimeout(res, ms));
 }
 //ghi ra từng ô trong excel
-async function writeToXcell(worksheet, x, y, title) {
+async function writeToXcell(worksheet, x, y, title,style) {
     try {
-        worksheet.cell(x, y).string(tTitle).style(style);
+        worksheet.cell(x, y).string(title).style(style);
     } catch (e) {
         console.log("e", e);
     }
     // }
 }
 // do login
-async function doGetInfomation(numberPhone, index, month, worksheet, socket, driver) {
+async function doGetInfomation(numberPhone, index, month, worksheet, socket, driver, length,style) {
     try {
         console.log("numberPhone ", numberPhone, "month", month);
         // go to login url
@@ -42,13 +42,14 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
 
         //lấy ra table result search - chỉ lấy phần row data
         let resultHtml = await driver.$$eval("#tbody_td_207", spanData => spanData.map((span) => {
-            console.log("dataFromTable is: ", span.innerHTML);
             return span.innerHTML;
         }));
 
+        console.log("dataFromTable is: ", resultHtml);
+
         if (resultHtml.length == "") { //  table k co du lieu >> k them vao excel
             // bo qua,k them du lieu vao excel
-            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
         } else {
             let listTdTag = getListTdInformation(resultHtml);
             // crawl BTS_NAME
@@ -58,15 +59,18 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
             // crawl TOTAL_TKC - optional
             let totalTKC = getTdInformation(listTdTag[3]);
             // thêm data vao excel
-            writeToXcell(worksheet, index + 1, 1, index); // STT
-            writeToXcell(worksheet, index + 1, 2, numberPhone); // SDT
-            writeToXcell(worksheet, index + 1, 3, btsName); // BTS_NAME
-            writeToXcell(worksheet, index + 1, 4, maTinh); // MA_TINH
-            writeToXcell(worksheet, index + 1, 5, totalTKC); // TOTAL_TKC
+            writeToXcell(worksheet, index + 1, 1, index, style); // STT
+            writeToXcell(worksheet, index + 1, 2, numberPhone, style); // SDT
+            writeToXcell(worksheet, index + 1, 3, btsName, style); // BTS_NAME
+            writeToXcell(worksheet, index + 1, 4, maTinh, style); // MA_TINH
+            writeToXcell(worksheet, index + 1, 5, totalTKC, style); // TOTAL_TKC
             // gửi dữ liệu về client
             // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
-            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
             // clearInterval(itemPhone.interval);
+            if((index + 1) == length){
+                socket.send(SOCKET_CRAWLED_DONE, {data: 2});
+            }
         }
     } catch (e) {
         console.log("doGetInfomation error ", e);

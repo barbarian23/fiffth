@@ -85,3 +85,8 @@ input :hover{
 #crawl-otp{
     display: flex;
 }
+
+.crawl-otp h3{
+    color: red;
+    animation: textshow 5s linear infinite alternate;
+}

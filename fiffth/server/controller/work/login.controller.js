@@ -13,7 +13,7 @@ function timer(ms) {
 }
 
 // do login
-async function doLogin(username, password, socket, driver) {
+async function doLogin(username, password, socket, driver, driver2) {
     try {
         console.log("username ", username, "password", password);
         // go to login url
@@ -52,7 +52,12 @@ async function doLogin(username, password, socket, driver) {
         //đi tới trang thông tin số
         // await driver.goto(OTP_URL);
         // wait to complete
+
+        await driver.evaluate("setInterval(()=>{document.querySelector('#passOTP')},500)");
+
         await driver.waitForFunction('document.querySelector("#passOTP") != null');
+
+        //await driver2.goto(OTP_URL);
 
         socket.send(SOCKET_LOGIN_STATUS, { data: 1 });
 

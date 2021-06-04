@@ -14,38 +14,44 @@ const puppeteer = require('puppeteer');
 //C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
 //C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe
 let exPath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-var driver;
+var driver, browser;
 
 //puppeteer
 //socket
 var socket = null;
 var excel = require('excel4node');
 var wb, ws;
+var fileName;
+var THRESLDHOLD = 50;
+const MIN_TIME = 2000;
 
 
 const preparePuppteer = function () {
-    return new Promise((res, rej) => {
-        puppeteer.launch({
-            args: ["--no-sandbox", "--proxy-server='direct://'", '--proxy-bypass-list=*'],
-            headless: false,
-            ignoreHTTPSErrors: true,
-            executablePath: exPath == "" ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" : exPath
-        })
-            .then(async (browser) => {
-                let pageLogin = await browser.newPage();
-                pageLogin.setViewport({ width: 2600, height: 3800 });
+    return new Promise(async (res, rej) => {
+        try {
+            let browser = await puppeteer.launch({
+                args: ["--no-sandbox", "--proxy-server='direct://'", '--proxy-bypass-list=*'],
+                headless: false,
+                ignoreHTTPSErrors: true,
+                executablePath: exPath == "" ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" : exPath
+            })
 
-                res(pageLogin);
-            }).catch(e => {
-                rej(e);
-            });
+            // let pageLogin = await browser.newPage();
+            // pageLogin.setViewport({ width: 2600, height: 3800 });
 
+            res(browser);
+        } catch (e) {
+            rej(e);
+        }
     });
 }
 
 const workingController = async function (server) {
     try {
-        driver = await preparePuppteer();
+        browser = await preparePuppteer();
+        driver  = await browser.newPage();
+        driver.setViewport({ width: 2600, height: 3800 });
+
         //khoi tao socket 
         socket = socketServer(server);
         socket.receive((receive) => {
@@ -65,10 +71,11 @@ const workingController = async function (server) {
 }
 
 //login
-const login = function (data) {
+const login = async function (data) {
     try {
         console.log("login voi username va password", data.username, data.password);
-        doLogin(data.username, data.password, socket, driver);
+        let driver2 = await browser.newPage();
+        doLogin(data.username, data.password, socket, driver, driver2);
     } catch (e) {
         console.log("login error ", e);
     }
@@ -88,13 +95,31 @@ const doOTP = function (data) {
 const doGetInfor = async function (data) { // crawl data in table
     try {
         console.log("data from client: ", data);
+        let mTime = data.time ? data.time : MIN_TIME;
         createFileExcel(data.nameFile);
+        let style = wb.createStyle({
+            alignment: {
+                vertical: ['center'],
+                horizontal: ['center'],
+                wrapText: true,
+            },
+            font: {
+                name: 'Arial',
+                color: '#4e3861',
+                size: 12,
+            },
+        });
         for (let index = 0; index < data.listPhone.length; index++) {
-            console.log("Tra cuu so thu ", index, " phone ", item.phone);
+            console.log("Tra cuu so thu ", index, " phone ", data.listPhone[index]);
             let today = new Date();
-            doGetInfomation(item.phone, today.getFullYear() + '-' + (today.getMonth + 1), ws, socket, driver);
-            await timer(2000);
+            doGetInfomation(data.listPhone[index].phone, data.listPhone[index].index, today.getFullYear() + '-' + (today.getMonth() + 1), ws, socket, driver, data.listPhone.length, style);
+            await timer(mTime);
+            //cứ 50 só một lần, ghi lại vào file excel
+            if (index % THRESLDHOLD == 0) {
+                await wb.write(fileName);
+            }
         }
+        await wb.write(fileName);
     } catch (e) {
         console.log("doGetInfor error ", e);
     }
@@ -147,7 +172,7 @@ const createFileExcel = function (data) {
 
         writeHeader(wb, ws);
         let today = new Date();
-        let fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
+        fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
         wb.write(fileName);
 
     } catch (e) {
