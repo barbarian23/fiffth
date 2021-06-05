@@ -14,7 +14,7 @@ function timer(ms) {
 //ghi ra từng ô trong excel
 async function writeToXcell(worksheet, x, y, title,style) {
     try {
-        worksheet.cell(x, y).string(title).style(style);
+        worksheet.cell(x, y).string(title + "").style(style);
     } catch (e) {
         console.log("e", e);
     }
@@ -36,7 +36,7 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
 
         // select to button search & click button
         selector = "#Div_Param > div:nth-child(2) > div:nth-child(3) > button"; // need to update
-        await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
+        await Promise.all([driver.click(selector)]);//, driver.waitForNavigation({ waitUntil: 'load', timeout: 0 })]);
 
         await timer(2000);
 
@@ -47,11 +47,13 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
 
         console.log("dataFromTable is: ", resultHtml);
 
-        if (resultHtml.length == "") { //  table k co du lieu >> k them vao excel
+        if (JSON.stringify(resultHtml) == JSON.stringify([""])) { //  table k co du lieu >> k them vao excel
             // bo qua,k them du lieu vao excel
             socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
         } else {
-            let listTdTag = getListTdInformation(resultHtml);
+            //let listTdTag = getListTdInformation(resultHtml);
+            let listTdTag = getListTdInformation(resultHtml[0]);
+            console.log("index",index);
             // crawl BTS_NAME
             let btsName = getTdInformation(listTdTag[1]);
             // crawl MATINH - important
@@ -61,14 +63,14 @@ async function doGetInfomation(numberPhone, index, month, worksheet, socket, dri
             // thêm data vao excel
             writeToXcell(worksheet, index + 1, 1, index, style); // STT
             writeToXcell(worksheet, index + 1, 2, numberPhone, style); // SDT
-            writeToXcell(worksheet, index + 1, 3, btsName, style); // BTS_NAME
-            writeToXcell(worksheet, index + 1, 4, maTinh, style); // MA_TINH
-            writeToXcell(worksheet, index + 1, 5, totalTKC, style); // TOTAL_TKC
+            writeToXcell(worksheet, index + 1, 3, btsName[0], style); // BTS_NAME
+            writeToXcell(worksheet, index + 1, 4, maTinh[0], style); // MA_TINH
+            writeToXcell(worksheet, index + 1, 5, totalTKC[0], style); // TOTAL_TKC
             // gửi dữ liệu về client
             // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
-            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
             // clearInterval(itemPhone.interval);
-            if((index + 1) == length){
+            if(index == length){
                 socket.send(SOCKET_CRAWLED_DONE, {data: 2});
             }
         }

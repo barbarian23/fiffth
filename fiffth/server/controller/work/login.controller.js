@@ -35,7 +35,7 @@ async function doLogin(username, password, socket, driver, driver2) {
         // select to button login & click button
         // selector = "body #ctl01 .page .main .accountInfo #MainContent_LoginUser_LoginButton";// need open comment
         selector = "#fm1 > section > button";
-        await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
+        await Promise.all([driver.click(selector)]);
 
         await timer(2000);
 

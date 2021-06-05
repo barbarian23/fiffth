@@ -40,7 +40,7 @@ export const verifyNumberPhone = paragraph => {
 export const getListTdInformation = paragraph => {
     try {
         var regex = /[<][t][d][>][^<]+/g;
-        return paragraph.match(regex) + "";
+        return paragraph.match(regex);
     } catch (e) {
         console.log("get list td tag information error ", e);
         return [""];
@@ -50,7 +50,9 @@ export const getListTdInformation = paragraph => {
 export const getTdInformation = paragraph => {
     try {
         var regex = /[^<td>]+/g;
-        return paragraph.match(regex) + "";
+        console.log("getTdInformation",paragraph);
+        console.log("getTdInformation match",paragraph.match(regex));
+        return paragraph.match(regex);
     } catch (e) {
         console.log()
     }

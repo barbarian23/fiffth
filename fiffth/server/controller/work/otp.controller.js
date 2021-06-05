@@ -42,7 +42,7 @@ async function doOTPChecking(otp, socket, driver) {
             // select to button login & click button
             //check xem hiện tại otp đã bị timoue hay chưa
             selector = "#loginForm > div.row > button";
-            await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'networkidle0' })]);
+            await Promise.all([driver.click(selector), driver.waitForNavigation({ waitUntil: 'load', timeout: 0 })]);
 
             await timer(2000);
 

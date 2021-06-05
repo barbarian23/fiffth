@@ -112,7 +112,7 @@ const doGetInfor = async function (data) { // crawl data in table
         for (let index = 0; index < data.listPhone.length; index++) {
             console.log("Tra cuu so thu ", index, " phone ", data.listPhone[index]);
             let today = new Date();
-            doGetInfomation(data.listPhone[index].phone, data.listPhone[index].index, today.getFullYear() + '-' + (today.getMonth() + 1), ws, socket, driver, data.listPhone.length, style);
+            await doGetInfomation(data.listPhone[index].phone, data.listPhone[index].index, today.getFullYear() + '-' + (today.getMonth() + 1), ws, socket, driver, data.listPhone.length, style);
             await timer(mTime);
             //cứ 50 só một lần, ghi lại vào file excel
             if (index % THRESLDHOLD == 0) {
