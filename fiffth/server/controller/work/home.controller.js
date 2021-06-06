@@ -74,9 +74,9 @@ async function doGetInfomation(line, numberPhone, index, month, worksheet, socke
             line++;
         }
         //đưa đoạn gửi tín hiệu thành công ra khỏi if else
-        if (index == length) {
-            socket.send(SOCKET_CRAWLED_DONE, { data: 2 });
-        }
+        // if (index == length) {
+        //     socket.send(SOCKET_CRAWLED_DONE, { data: 2 });
+        // }
         return line;
     } catch (e) {
         console.log("doGetInfomation error ", e);

@@ -50,7 +50,8 @@ export default function homeReducer(state = initialState, action) {
         case GET_NUMBER_INFORMATION_SUCCESS:
             return {
                 ...state,
-                isCrawlDone: action.data
+                isCrawlDone: action.data,
+                listPhone: []
             }
         default:
             return {

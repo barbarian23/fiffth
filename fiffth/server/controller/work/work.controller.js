@@ -4,6 +4,7 @@ import {
     SOCKET_LOGIN,
     SOCKET_OTP,
     SOCKET_WORKING_START_CRAWL_DATA,
+    SOCKET_CRAWLED_DONE
 } from "../../../common/constants/common.constants";
 import doLogin from "../work/login.controller";
 import doOTPChecking from "../work/otp.controller";
@@ -13,7 +14,7 @@ import { forEach } from "lodash";
 const puppeteer = require('puppeteer');
 //C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
 //C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe
-let exPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+let exPath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 var driver, browser;
 
 //puppeteer
@@ -24,7 +25,7 @@ var wb, ws;
 var fileName;
 var THRESLDHOLD = 50;
 const MIN_TIME = 2000;
-var line = 0;
+var line = 2;//bỏ qua header và excel abwts đầu từ một
 
 const preparePuppteer = function () {
     return new Promise(async (res, rej) => {
@@ -95,7 +96,7 @@ const doOTP = function (data) {
 const doGetInfor = async function (data) { // crawl data in table
     try {
         console.log("data from client: ", data);
-        let mTime = data.time ? data.time : MIN_TIME;
+        let mTime = data.time ? (data.time * 1000) : MIN_TIME;
         createFileExcel(data.nameFile);
         let style = wb.createStyle({
             alignment: {
@@ -121,6 +122,8 @@ const doGetInfor = async function (data) { // crawl data in table
             }
         }
         await wb.write(fileName);
+        socket.send(SOCKET_CRAWLED_DONE, { data: 2 });
+        line = 2;
     } catch (e) {
         console.log("doGetInfor error ", e);
     }
@@ -173,7 +176,7 @@ const createFileExcel = function (data) {
 
         writeHeader(wb, ws);
         let today = new Date();
-        fileName = "Tra cứu_" + data + "_" + today.getFullYear() + (today.getMonth() + 1) + today.getDate() + "_" + today.getHours() + today.getMinutes() + ".xlsx";
+        fileName = data + "_" + "Ngay " +  today.getDate() +" Thang " + (today.getMonth() + 1) + " Nam " + today.getFullYear()  + "_" + today.getHours() + " Gio " + today.getMinutes() + " Phut.xlsx";
         wb.write(fileName);
 
     } catch (e) {

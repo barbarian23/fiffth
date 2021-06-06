@@ -8,6 +8,8 @@ import { useSelector, useDispatch } from 'react-redux';
 export default function Home() {
     const [mTime, setMTime] = useState(0);
     const [isTracking, setIsTracking] = useState(false);
+    const [nameFile, setNameFile] = useState("");
+    const [onBoarding, setOnBoarding] = useState(false);
     const dispatch = useDispatch();
     let listPhone = useSelector(state => state.home.listPhone);
     let phoneNumberChecking = useSelector(state => state.home.phoneNumberChecking);
@@ -33,6 +35,7 @@ export default function Home() {
     let readFile = (e) => {
         // console.log("name file is ", e.target.files[0].name);
         let nameFile = e.target.files[0].name;
+        setNameFile(nameFile);
         readFileExcel(e.target.files[0], (data) => {
             setIsTracking(true);
             //data là mảng chứa danh sách thuê bao và số tiền
@@ -51,6 +54,7 @@ export default function Home() {
                 if (index == (data.length - 1)) {
                     console.log("data - endoflist", item[0], " ", item[1], " listPhone", listPhone);
                     dispatch({ type: START_CRAWL_DATA, data: { listPhone: listPhone, nameFile: nameFile.substring(0, nameFile.length - 5), time: mTime } });
+                    setOnBoarding(true);
                 }
             });
         });
@@ -78,25 +82,42 @@ export default function Home() {
     return (
         <div className="crawl-login" id="div_craw">
             <div style={{
-                        position: "absolute",
-                        top: "20px",
-                        fontSize: "36px",
-                        fontWeight: "600"}}>CAS VNPT TRA CỨU THÔNG TIN</div>
+                position: "absolute",
+                top: "20px",
+                fontSize: "36px",
+                fontWeight: "600"
+            }}>CAS VNPT TRA CỨU THÔNG TIN</div>
             {
                 !isTracking ?
-                    <div className="crawl-login">
-                        <div className="input-add-div">
-                            <input className="input-add" type="number" min="1" max="60" defaultValue="1" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
-                            <input className="input-add-button" type="button" value={TR_TYPE_SETUP} onClick={setUpTime} />
+                    <div>
+                        <div className="crawl-login">
+                            <div className="input-add-div">
+                                <input className="input-add" type="number" min="1" max="60" defaultValue="1" placeholder={TR_TYPE_TIME} onChange={onInputTime} />
+                                <input className="input-add-button" type="button" value={TR_TYPE_SETUP} onClick={setUpTime} />
+                            </div>
+                            <div id="crawl_login_file_input_up">
+                                {/* <img id="img_file_input" src='../assets/images/file.png' /> */}
+                                <label htmlFor="xlsx">Bấm vào đây để chọn tệp(excel)</label>
+                                <input type="file"
+                                    id="xlsx" name="xlsx"
+                                    accept="xlsx" onChange={readFile} />
+                                <span id="span_file_input_error"></span>
+                            </div>
                         </div>
-                        <div id="crawl_login_file_input_up">
-                            {/* <img id="img_file_input" src='../assets/images/file.png' /> */}
-                            <label htmlFor="xlsx">Bấm vào đây để chọn tệp(excel)</label>
-                            <input type="file"
-                                id="xlsx" name="xlsx"
-                                accept="xlsx" onChange={readFile} />
-                            <span id="span_file_input_error"></span>
-                        </div>
+                        {
+                            isCrawlDone && onBoarding ?
+                                <div style={{
+                                    position: "absolute",
+                                    bottom: "10px",
+                                    left: "50%",
+                                    width: "100%",
+                                    transform: 'translate(-50%, 10px)',
+                                }} className="tracking-index-number-upper">
+                                    <text>Tra cứu thành công , tên tệp đã crawl là <span style={{ color: "green" }}>{nameFile}</span></text>
+                                </div>
+                                :
+                                null
+                        }
                     </div>
                     :
                     null
@@ -116,12 +137,19 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                        <div className="tracking-index-number-upper">
-                            <text>Đang tra cứu tới số thứ {phoneNumberChecking.index}</text>
+
+                        <div>
+                            <div className="tracking-index-number-upper">
+                                <text>Đang tra cứu tệp <span style={{ color: "green" }}>{nameFile}</span></text>
+                            </div>
+                            <div className="tracking-index-number-upper">
+                                <text style={{textAlign:"center"}}>Đang tra cứu tới số thứ {phoneNumberChecking.index}</text>
+                            </div>
+                            <div className="tracking-index-number-bellow">
+                                <text>Hoàn thành {percentProcess(phoneNumberChecking.index, sumIndex)}%</text>
+                            </div>
                         </div>
-                        <div className="tracking-index-number-bellow">
-                            <text>Hoàn thành {percentProcess(phoneNumberChecking.index, sumIndex)}%</text>
-                        </div>
+
                     </div>
                     :
                     null
