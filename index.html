@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Tra cuu tinh thanh</title>
+  <title>CAS VNPT TRA CỨU THÔNG TIN</title>
 
   <style>
     body {
@@ -44,7 +44,7 @@
 
 <body>
   <div id="loading">
-    Loading...
+    Đang tải dữ liệu ...
   </div>
   <!-- serrver log là một thẻ div để hiện log lên trên html html -->-->
   <!-- <div id="serverLog"></div> -->
@@ -59,7 +59,7 @@
 
       app = require('electron').remote.app,
       node = require("child_process").fork(
-        `${app.getAppPath()}/fourth/dist/index`,
+        `${app.getAppPath()}/fiffth/dist/index`, //sửa thành đường dẫn đã build
         [],
         {
           stdio: ["pipe", "pipe", "pipe", "ipc"]

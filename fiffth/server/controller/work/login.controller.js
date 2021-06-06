@@ -49,7 +49,10 @@ async function doLogin(username, password, socket, driver, driver2) {
             return;
         }
 
-        //đi tới trang thông tin số
+       //focus vào trnag đang đăng nhập
+        await driver.bringToFront();
+
+         //đi tới trang thông tin số
         // await driver.goto(OTP_URL);
         // wait to complete
 

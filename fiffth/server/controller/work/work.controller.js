@@ -13,7 +13,7 @@ import { forEach } from "lodash";
 const puppeteer = require('puppeteer');
 //C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
 //C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe
-let exPath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+let exPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
 var driver, browser;
 
 //puppeteer
@@ -31,7 +31,7 @@ const preparePuppteer = function () {
         try {
             let browser = await puppeteer.launch({
                 args: ["--no-sandbox", "--proxy-server='direct://'", '--proxy-bypass-list=*'],
-                headless: false,
+                headless: true,
                 ignoreHTTPSErrors: true,
                 executablePath: exPath == "" ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" : exPath
             })
@@ -74,8 +74,8 @@ const workingController = async function (server) {
 const login = async function (data) {
     try {
         console.log("login voi username va password", data.username, data.password);
-        let driver2 = await browser.newPage();
-        doLogin(data.username, data.password, socket, driver, driver2);
+        //let driver2 = await browser.newPage();
+        doLogin(data.username, data.password, socket, driver, null); //driver 2 null
     } catch (e) {
         console.log("login error ", e);
     }

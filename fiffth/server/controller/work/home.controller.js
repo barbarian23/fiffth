@@ -50,7 +50,7 @@ async function doGetInfomation(line, numberPhone, index, month, worksheet, socke
         if (JSON.stringify(resultHtml) == JSON.stringify([""])) { //  table k co du lieu >> k them vao excel
             // bo qua,k them du lieu vao excel
             socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
-            return line;
+            
         } else {
             //let listTdTag = getListTdInformation(resultHtml);
             let listTdTag = getListTdInformation(resultHtml[0]);
@@ -71,12 +71,13 @@ async function doGetInfomation(line, numberPhone, index, month, worksheet, socke
             // await socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index:index, phone: numberPhone, btsName: btsName, maTinh: maTinh, totalTKC: totalTKC });
             socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
             // clearInterval(itemPhone.interval);
-            if (index == length) {
-                socket.send(SOCKET_CRAWLED_DONE, { data: 2 });
-            }
             line++;
-            return line;
         }
+        //đưa đoạn gửi tín hiệu thành công ra khỏi if else
+        if (index == length) {
+            socket.send(SOCKET_CRAWLED_DONE, { data: 2 });
+        }
+        return line;
     } catch (e) {
         console.log("doGetInfomation error ", e);
     }
