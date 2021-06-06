@@ -46,7 +46,7 @@ export default function Home() {
                     // console.log("data in file excel", item);
                     // dispatch({ type: SEND_NUMBER_TOSERVER, data: { phone: item[0], index: item[1] } });
                     let itemPhone = {
-                        index: item[1],
+                        index: index,
                         phone: item[0]
                     }
                     listPhone.push(itemPhone);
