@@ -47,10 +47,16 @@ async function doGetInfomation(line, numberPhone, index, month, worksheet, socke
 
         console.log("dataFromTable is: ", resultHtml);
 
-        if (JSON.stringify(resultHtml) == JSON.stringify([""])) { //  table k co du lieu >> k them vao excel
-            // bo qua,k them du lieu vao excel
-            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index + 1, phone: numberPhone });
-            
+        if (JSON.stringify(resultHtml) == JSON.stringify([""])) { //  table k co du lieu 
+            // them data rong vao excel,k them du lieu vao excel
+            writeToXcell(worksheet, line, 1, index, style); // STT
+            writeToXcell(worksheet, line, 2, numberPhone, style); // SDT
+            writeToXcell(worksheet, line, 3, "", style); // BTS_NAME
+            writeToXcell(worksheet, line, 4, "", style); // MA_TINH
+            writeToXcell(worksheet, line, 5, "", style); // TOTAL_TKC
+            socket.send(SOCKET_WORKING_CRAWLED_ITEM_DATA, { index: index, phone: numberPhone });
+            line++;
+
         } else {
             //let listTdTag = getListTdInformation(resultHtml);
             let listTdTag = getListTdInformation(resultHtml[0]);

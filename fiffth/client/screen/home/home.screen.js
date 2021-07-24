@@ -143,7 +143,7 @@ export default function Home() {
                                 <text>Đang tra cứu tệp <span style={{ color: "green" }}>{nameFile}</span></text>
                             </div>
                             <div className="tracking-index-number-upper">
-                                <text style={{textAlign:"center"}}>Đang tra cứu tới số thứ {phoneNumberChecking.index}</text>
+                                <text style={{textAlign:"center"}}>Đang tra cứu tới số thứ {phoneNumberChecking.index} / {sumIndex}</text>
                             </div>
                             <div className="tracking-index-number-bellow">
                                 <text>Hoàn thành {percentProcess(phoneNumberChecking.index, sumIndex)}%</text>
